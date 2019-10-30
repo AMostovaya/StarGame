@@ -13,7 +13,7 @@ public class StarGame extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+		img = new Texture("ScreenSaver.png");
 	}
 /////
 	@Override
@@ -21,7 +21,7 @@ public class StarGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(1f, 0.45f, 0.15f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
-		batch.draw(img, 50, 100, 150,150);
+		batch.draw(img, 200, 115, 250,250);
 		batch.setColor(1f,1f,1f,0.2f);
 		batch.end();
 	}
