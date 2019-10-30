@@ -15,7 +15,7 @@ public class StarGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
 	}
-////
+/////
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(1f, 0.45f, 0.15f, 1);
