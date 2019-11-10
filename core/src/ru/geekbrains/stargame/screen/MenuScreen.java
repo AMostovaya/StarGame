@@ -14,6 +14,9 @@ public class MenuScreen extends BaseScreen {
     private Texture img;
     private Vector2 pos;
     private Vector2 v;
+    private Vector2 touch;
+    private static final float V_LENGTH = 0.5f;
+    private Vector2 buff;
 
 
     @Override
@@ -24,16 +27,17 @@ public class MenuScreen extends BaseScreen {
         img = new Texture("ScreenSaver.png");
         pos = new Vector2();
         v = new Vector2(2,1);
+        touch = new Vector2();
+        buff = new Vector2();
 
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        //testV.add(testV);
 
         super.touchDown(screenX, screenY, pointer, button);
-        System.out.println(screenX + ";" + (Gdx.graphics.getHeight() - screenY));
-
+        touch.set(screenX, (Gdx.graphics.getHeight() - screenY));
+        v.set(touch.cpy().sub(pos)).setLength(V_LENGTH);
         return false;
     }
 
@@ -49,6 +53,13 @@ public class MenuScreen extends BaseScreen {
         batch.draw(img, pos.x, pos.y, 250, 250);
         batch.setColor(1f, 1f, 1f, 0.2f);
         batch.end();
+        buff.set(touch);
+
+        if ((buff.sub(pos)).len()> V_LENGTH) {
+            pos.add(v);
+        } else {
+            pos.set(touch);
+        }
 
 
         // по нажатию кнопок: вверх, вниз, вправо, влево
@@ -69,10 +80,10 @@ public class MenuScreen extends BaseScreen {
         }
 
         // по нажатию клавиши мыши
-        if (Gdx.input.isTouched()) {
-            pos.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-
-        }
+        //if (Gdx.input.isTouched()) {
+          //  pos.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+//
+  //      }
 
         if (Gdx.input.getX()<0) pos.x=0;
         if (Gdx.input.getY()<0) pos.y =0;
