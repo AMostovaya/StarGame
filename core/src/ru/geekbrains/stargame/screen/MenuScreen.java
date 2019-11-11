@@ -1,23 +1,22 @@
 package ru.geekbrains.stargame.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 
 import ru.geekbrains.stargame.base.BaseScreen;
+import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.sprite.Background;
+import ru.geekbrains.stargame.sprite.Logo;
 
 public class MenuScreen extends BaseScreen {
 
     private Texture img;
-    private Vector2 pos;
-    private Vector2 v;
-    private Vector2 touch;
-    private static final float V_LENGTH = 0.5f;
-    private Vector2 buff;
-
+    private Texture bg;
+    private Background background;
+    private Logo logo;
 
     @Override
     public void show() {
@@ -25,45 +24,31 @@ public class MenuScreen extends BaseScreen {
         super.show();
 
         img = new Texture("ScreenSaver.png");
-        pos = new Vector2();
-        v = new Vector2(2,1);
-        touch = new Vector2();
-        buff = new Vector2();
-
+        bg = new Texture("textures/bg.png");
+        logo = new Logo(new TextureRegion(img));
+        logo.setHeightProportion(0.5f);
+        background = new Background(new TextureRegion(bg));
     }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-
-        super.touchDown(screenX, screenY, pointer, button);
-        touch.set(screenX, (Gdx.graphics.getHeight() - screenY));
-        v.set(touch.cpy().sub(pos)).setLength(V_LENGTH);
-        return false;
-    }
-
-
 
     @Override
     public void render(float delta) {
         super.render(delta);
-        Gdx.gl.glClearColor(1f, 0.45f, 0.15f, 1);
+        Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
-        // batch.draw(img, 200, 115, 250,250);
-        batch.draw(img, pos.x, pos.y, 250, 250);
-        batch.setColor(1f, 1f, 1f, 0.2f);
+        background.draw(batch);
+        logo.draw(batch);
         batch.end();
-        buff.set(touch);
+        logo.buff.set(logo.ptouch);
 
-        if ((buff.sub(pos)).len()> V_LENGTH) {
-            pos.add(v);
-        } else {
-            pos.set(touch);
-        }
+        if (logo.buff.sub(logo.getPos()).len() > Logo.V_LENGTH) {
+            logo.getPos().add(logo.v);
+        } else
+            logo.getPos().set(logo.ptouch);
 
 
         // по нажатию кнопок: вверх, вниз, вправо, влево
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        /*if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             pos.x -= 100 * Gdx.graphics.getDeltaTime();
         }
 
@@ -77,30 +62,33 @@ public class MenuScreen extends BaseScreen {
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             pos.y -= 100 * Gdx.graphics.getDeltaTime();
-        }
+        }*/
 
-        // по нажатию клавиши мыши
-        //if (Gdx.input.isTouched()) {
-          //  pos.set(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-//
-  //      }
 
-        if (Gdx.input.getX()<0) pos.x=0;
-        if (Gdx.input.getY()<0) pos.y =0;
-
-        if (Gdx.graphics.getHeight() > pos.y + img.getHeight()
-        && Gdx.graphics.getWidth()> pos.x + img.getWidth()) {
-            //  pos.add(v);
-        }
 
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
         img.dispose();
+        bg.dispose();
         super.dispose();
     }
 
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer) {
+        logo.touchDown(touch, pointer);
+        return false;
+    }
 
+    @Override
+    public boolean keyDown(int keycode) {
+        return super.keyDown(keycode);
+    }
+
+    @Override
+    public void resize(Rect worldBounds) {
+        super.resize(worldBounds);
+        background.resize(worldBounds);
+    }
 }
