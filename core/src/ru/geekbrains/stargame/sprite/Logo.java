@@ -11,43 +11,38 @@ import ru.geekbrains.stargame.math.Rect;
 
 public class Logo extends Sprite {
 
-   public Vector2 v; // speed
-    public Vector2 ptouch;
-    public Vector2 buff;
+    public Vector2 v = new Vector2(); // speed
+    private Vector2 endPoint = new Vector2();
+    public Vector2 buff = new Vector2();
     public static float V_LENGTH = 0.01f;
-    private Rect worldBounds;
-
 
     public Logo(TextureRegion region) {
         super(region);
-        v = new Vector2();
-        ptouch = new Vector2();
-        buff = new Vector2();
-        worldBounds = new Rect();
-
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        ptouch.set(touch);
-        v.set(ptouch.cpy().sub(getPos()));
-        v.setLength(V_LENGTH);
+        endPoint.set(touch);
+        v.set(touch.cpy().sub(pos)).setLength(V_LENGTH);
         return false;
     }
 
     @Override
     public void update(float delta)     {
-// здесь не срабатывает проверка не убегания за границы
-        checkBounds();
+
+        buff.set(endPoint);
+        if (buff.sub(pos).len() > V_LENGTH ){
+
+            pos.add(v);
+
+        } else { pos.set(endPoint);}
+
 }
 
 
     private void checkBounds() {
 
-        if(getRight()<worldBounds.getLeft()) setLeft(worldBounds.getRight());
-        if(getLeft()>worldBounds.getRight()) setRight(worldBounds.getLeft());
-        if(getTop()<worldBounds.getBottom()) setBottom(worldBounds.getTop());
-        if(getBottom()>worldBounds.getTop()) setTop(worldBounds.getBottom());
+
     }
 
 }

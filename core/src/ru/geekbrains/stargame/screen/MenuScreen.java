@@ -33,19 +33,15 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         super.render(delta);
-        Gdx.gl.glClearColor(1, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        background.draw(batch);
-        logo.draw(batch);
-        batch.end();
-        logo.buff.set(logo.ptouch);
+        update(delta);
+        draw();
 
+/*
         if (logo.buff.sub(logo.getPos()).len() > Logo.V_LENGTH) {
             logo.getPos().add(logo.v);
         } else
             logo.getPos().set(logo.ptouch);
-
+*/
 
         // по нажатию кнопок: вверх, вниз, вправо, влево
         /*if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
@@ -90,5 +86,20 @@ public class MenuScreen extends BaseScreen {
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
         background.resize(worldBounds);
+    }
+
+    private void update(float delta) {
+
+        logo.update(delta);
+    }
+
+    private void draw() {
+        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        background.draw(batch);
+        logo.draw(batch);
+        batch.end();
+
     }
 }
