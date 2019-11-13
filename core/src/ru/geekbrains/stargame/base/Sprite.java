@@ -21,6 +21,34 @@ public class Sprite extends Rect {
         regions[0] = region;
     }
 
+    public Sprite(TextureRegion region, int rows, int cols, int frames) {
+        if (region == null) throw new NullPointerException("region == null");
+        // деление текстуры корабля
+        this.regions = split(region, rows, cols, frames);
+    }
+
+    public TextureRegion[] split(TextureRegion region, int rows, int cols, int frames) {
+
+        if (region == null)
+            throw new NullPointerException("Split null region");
+
+        TextureRegion[] regions = new TextureRegion[frames];
+
+        int width = region.getRegionWidth()/cols;
+        int height = region.getRegionHeight()/rows;
+
+        int k = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j<cols; j++) {
+                regions[k] = new TextureRegion(region, width*j, height*i, width, height);
+                if(k == frames - 1)
+                    return regions;
+                k++;
+            }
+        }
+        return regions;
+    }
+
     public void draw(SpriteBatch batch){
         batch.draw(
                 regions[frame],
