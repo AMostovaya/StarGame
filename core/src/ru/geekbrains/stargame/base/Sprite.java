@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.utils.Regions;
 
 public class Sprite extends Rect {
 
@@ -12,6 +13,11 @@ public class Sprite extends Rect {
     protected float scale = 1f;
     protected TextureRegion[] regions;
     protected int frame;
+    protected boolean destroyed;
+
+    public  Sprite(){
+
+    }
 
     public Sprite(TextureRegion region) {
         if (region==null) {
@@ -24,30 +30,10 @@ public class Sprite extends Rect {
     public Sprite(TextureRegion region, int rows, int cols, int frames) {
         if (region == null) throw new NullPointerException("region == null");
         // деление текстуры корабля
-        this.regions = split(region, rows, cols, frames);
+        this.regions = Regions.split(region, rows, cols, frames);
     }
 
-    public TextureRegion[] split(TextureRegion region, int rows, int cols, int frames) {
 
-        if (region == null)
-            throw new NullPointerException("Split null region");
-
-        TextureRegion[] regions = new TextureRegion[frames];
-
-        int width = region.getRegionWidth()/cols;
-        int height = region.getRegionHeight()/rows;
-
-        int k = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j<cols; j++) {
-                regions[k] = new TextureRegion(region, width*j, height*i, width, height);
-                if(k == frames - 1)
-                    return regions;
-                k++;
-            }
-        }
-        return regions;
-    }
 
     public void draw(SpriteBatch batch){
         batch.draw(
@@ -96,6 +82,19 @@ public class Sprite extends Rect {
         setHeight(height);
         float aspect = regions[frame].getRegionWidth()/ (float)regions[frame].getRegionHeight();
         setWidth(height*aspect);
+    }
+
+    public void destroy()  {
+        destroyed = true;
+    }
+
+    public void flushDestroy() {
+        destroyed = false;
+    }
+
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 
 
