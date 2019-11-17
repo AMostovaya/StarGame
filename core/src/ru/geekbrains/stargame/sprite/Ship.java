@@ -7,8 +7,12 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.base.Sprite;
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.BulletPool;
 
 public class Ship extends Sprite {
+
+    private static final float BOTTOM_MARGIN = 0.05f;
+    private static final int INVALID_POINTER = -1;
 
     private Vector2 v = new Vector2(); // скорость
     private boolean isLeft; // нажата левая стрелка
@@ -16,10 +20,22 @@ public class Ship extends Sprite {
     private Vector2 vDelta = new Vector2(0.2f, 0f); //скорость
     private Rect worldbound;
 
+    private int leftPointer = INVALID_POINTER;
+    private int rightPointer = INVALID_POINTER;
 
-    public Ship(TextureAtlas atlas) {
+    private BulletPool bulletPool;
+    private TextureRegion bulletRegion;
+    private Vector2 bulletV = new Vector2(0, 0.5f);
+    private final float reloadInterval = 0.2f;
+    private float reloadTimer = 0f;
+
+
+
+    public Ship(TextureAtlas atlas, BulletPool bulletPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
+        this.bulletPool = bulletPool;
+        bulletRegion = atlas.findRegion("bulletMainShip");
     }
 
     @Override
@@ -31,17 +47,24 @@ public class Ship extends Sprite {
 
     @Override
     public void update(float delta) {
-        super.update(delta);
+
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            reloadTimer = 0f;
+            shoot();
+        }
         pos.mulAdd(v, delta);
-        // не убегаем за границы
-        checkBounds();
+        if (getRight() > worldbound.getRight()) {
+            setRight(worldbound.getRight());
+            stop();
+        }
+        if (getLeft() < worldbound.getLeft()) {
+            setLeft(worldbound.getLeft());
+            stop();
+        }
     }
 
-    private void checkBounds() {
 
-        if (getRight()> worldbound.getRight()) setRight(worldbound.getRight());
-        if (getLeft() < worldbound.getLeft()) setLeft(worldbound.getLeft());
-    }
 
     // движение по нажатию клавиши
     public void keyDown(int keycode) {
@@ -55,19 +78,32 @@ public class Ship extends Sprite {
                 moveRight(); //движение вправо
                 break;
         }
-
     }
 
     public void keyUp(int keycode) {
         switch (keycode){
-            case Input.Keys.LEFT:
-            case Input.Keys.A:
-            case Input.Keys.RIGHT:
             case Input.Keys.D:
-                stop();
+            case Input.Keys.RIGHT:
+                isRight = false;
+                if (isLeft) {
+                    moveLeft();
+                } else {
+                    stop();
+                }
+                break;
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                isLeft = false;
+                if (isRight) {
+                    moveRight();
+                } else {
+                    stop();
+                }
+                break;
+            case Input.Keys.UP:
+                shoot();
                 break;
         }
-
     }
 
     private void moveRight() {
@@ -84,12 +120,41 @@ public class Ship extends Sprite {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        if(touch.x < worldbound.pos.x){
+        if (touch.x < worldbound.pos.x) {
+            if (leftPointer != INVALID_POINTER) return false;
+            leftPointer = pointer;
             moveLeft();
-        }
-        else {
+        } else {
+            if (rightPointer != INVALID_POINTER) return false;
+            rightPointer = pointer;
             moveRight();
         }
-        return super.touchDown(touch, pointer);
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(Vector2 touch, int pointer) {
+
+        if (pointer == leftPointer) {
+            leftPointer = INVALID_POINTER;
+            if (rightPointer != INVALID_POINTER) {
+                moveRight();
+            } else {
+                stop();
+            }
+        } else if (pointer == rightPointer) {
+            rightPointer = INVALID_POINTER;
+            if (leftPointer != INVALID_POINTER) {
+                moveLeft();
+            } else {
+                stop();
+            }
+        }
+        return false;
+    }
+
+    public void shoot(){
+        Bullet bullet = bulletPool.obtain();
+        bullet.set(this, bulletRegion, pos, bulletV, 0.01f, worldbound, 1);
     }
 }
