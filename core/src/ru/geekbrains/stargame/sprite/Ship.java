@@ -19,7 +19,7 @@ public class Ship extends Sprite {
 
     public Ship(TextureAtlas atlas) {
         super(atlas.findRegion("main_ship"),1,2,2);
-        setHeightProportion(0.19f);
+        setHeightProportion(0.15f);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class Ship extends Sprite {
     }
 
     // движение по нажатию клавиши
-    public boolean keyDown(int keycode) {
+    public void keyDown(int keycode) {
         switch (keycode){ //если нажата
             case Input.Keys.LEFT:
                 isLeft = true;
@@ -55,7 +55,19 @@ public class Ship extends Sprite {
                 moveRight(); //движение вправо
                 break;
         }
-        return false;
+
+    }
+
+    public void keyUp(int keycode) {
+        switch (keycode){
+            case Input.Keys.LEFT:
+            case Input.Keys.A:
+            case Input.Keys.RIGHT:
+            case Input.Keys.D:
+                stop();
+                break;
+        }
+
     }
 
     private void moveRight() {
@@ -64,6 +76,10 @@ public class Ship extends Sprite {
 
     private void moveLeft() {
         v.set(vDelta).rotate(180);
+    }
+
+    public  void stop() {
+        v.setZero();
     }
 
     @Override
