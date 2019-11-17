@@ -11,22 +11,27 @@ import ru.geekbrains.stargame.base.BaseScreen;
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.sprite.Background;
 import ru.geekbrains.stargame.sprite.Ship;
+import ru.geekbrains.stargame.sprite.Star;
 
 public class GameScreen extends BaseScreen {
 
+    private static final int STAR_COUTNT = 55;
     private Texture bg;
     private TextureAtlas atlas;
     private Ship ship;
-
+    private Star[] stars;
     private Background background;
 
     @Override
     public void show() {
         super.show();
-
         bg = new Texture("textures/bg.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+        stars = new Star[STAR_COUTNT];
+        for (int i =0; i< STAR_COUTNT; i++) {
+            stars[i] = new Star(atlas);
+        }
         ship = new Ship(atlas);
 
     }
@@ -34,6 +39,9 @@ public class GameScreen extends BaseScreen {
     @Override
     public void resize(Rect worldBounds) {
         background.resize(worldBounds);
+        for (Star star: stars) {
+            star.resize(worldBounds);
+        }
         ship.resize(worldBounds);
     }
 
@@ -68,10 +76,8 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void render(float delta) {
-
         update(delta);
         draw();
-
     }
 
     private void draw() {
@@ -79,12 +85,18 @@ public class GameScreen extends BaseScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         background.draw(batch);
+        for (Star star: stars) {
+            star.draw(batch);
+        }
         ship.draw(batch);
         batch.end();
 
     }
 
     private void update(float delta) {
+        for (Star star: stars) {
+            star.update(delta);
+        }
         ship.update(delta);
     }
 }
