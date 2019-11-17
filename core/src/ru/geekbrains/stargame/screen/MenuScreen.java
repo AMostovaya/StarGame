@@ -32,7 +32,6 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public void show() {
-
         super.show();
         bg = new Texture("textures/bg.png");
         background = new Background(new TextureRegion(bg));
@@ -40,11 +39,9 @@ public class MenuScreen extends BaseScreen {
         stars = new Star[STAR_COUTNT];
         for (int i =0; i< STAR_COUTNT; i++) {
             stars[i] = new Star(atlas);
-
         }
         buttonExit = new ButtonExit(atlas);
         buttonPlay = new ButtonPlay(atlas, game);
-
     }
 
     @Override
@@ -52,41 +49,12 @@ public class MenuScreen extends BaseScreen {
         super.render(delta);
         update(delta);
         draw();
-
-/*
-        if (logo.buff.sub(logo.getPos()).len() > Logo.V_LENGTH) {
-            logo.getPos().add(logo.v);
-        } else
-            logo.getPos().set(logo.ptouch);
-*/
-
-        // по нажатию кнопок: вверх, вниз, вправо, влево
-        /*if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            pos.x -= 100 * Gdx.graphics.getDeltaTime();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            pos.x += 100 * Gdx.graphics.getDeltaTime();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            pos.y += 100 * Gdx.graphics.getDeltaTime();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            pos.y -= 100 * Gdx.graphics.getDeltaTime();
-        }*/
-
-
-
     }
 
     @Override
     public void dispose() {
-
         bg.dispose();
         atlas.dispose();
-
         super.dispose();
     }
 
@@ -104,11 +72,9 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-
         buttonExit.touchUp(touch, pointer);
         buttonPlay.touchUp(touch, pointer);
         return false;
-
     }
 
     @Override
@@ -123,11 +89,9 @@ public class MenuScreen extends BaseScreen {
     }
 
     private void update(float delta) {
-
         for (Star star: stars) {
             star.update(delta);
         }
-
     }
 
     private void draw() {
@@ -138,10 +102,8 @@ public class MenuScreen extends BaseScreen {
         for (Star star: stars) {
             star.draw(batch);
         }
-
         buttonExit.draw(batch);
         buttonPlay.draw(batch);
         batch.end();
-
     }
 }
