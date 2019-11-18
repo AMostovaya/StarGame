@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.base.BaseScreen;
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.EnemyPool;
 import ru.geekbrains.stargame.sprite.Background;
 import ru.geekbrains.stargame.sprite.ButtonExit;
 import ru.geekbrains.stargame.sprite.ButtonPlay;
@@ -26,6 +27,7 @@ public class MenuScreen extends BaseScreen {
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
 
+
     public MenuScreen(Game game) {
         this.game = game;
     }
@@ -40,6 +42,7 @@ public class MenuScreen extends BaseScreen {
         for (int i =0; i< STAR_COUTNT; i++) {
             stars[i] = new Star(atlas);
         }
+
         buttonExit = new ButtonExit(atlas);
         buttonPlay = new ButtonPlay(atlas, game);
     }
