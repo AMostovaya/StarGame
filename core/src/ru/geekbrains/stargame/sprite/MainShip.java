@@ -21,11 +21,6 @@ public class MainShip extends Ships {
     private int rightPointer = INVALID_POINTER;
 
 
-
-
-
-
-
     public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
@@ -56,6 +51,13 @@ public class MainShip extends Ships {
     public void update(float delta) {
 
         super.update(delta);
+        pos.mulAdd(v, delta);
+        reloadTimer += delta;
+
+        if (reloadTimer >= reloadInterval){ //
+            reloadTimer = 0f;
+            shoot();
+        }
 
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
