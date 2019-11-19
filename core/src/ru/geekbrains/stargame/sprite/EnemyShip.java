@@ -6,41 +6,54 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.math.Rect;
-import ru.geekbrains.stargame.pool.EnemyPool;
-import ru.geekbrains.stargame.utils.Regions;
+import ru.geekbrains.stargame.pool.BulletPool;
 
 public class EnemyShip extends Ships {
 
-   private Vector2 v = new Vector2(0, -0.2f);
-   private TextureRegion[] enemyRegions;
-   private TextureRegion bulletRegion; //текстура пули
-   private EnemyPool enemyPool;
-   private Rect worldBounds;
+    public EnemyShip(BulletPool bulletPool, Rect worldBounds) {
 
-    public EnemyShip() {
-
-    }
-
-    public EnemyShip(TextureAtlas atlas, EnemyPool enemyPool) {
-
-       this.enemyPool = enemyPool;
-
-       TextureRegion textureRegion0 = atlas.findRegion("enemy0");
-       this.enemyRegions = Regions.split(textureRegion0, 1, 2, 2); //разделяем тектсуру
-       this.bulletRegion = atlas.findRegion("bulletEnemy");
-    }
-
-    @Override
-    public void resize(Rect worldBounds) {
-        super.resize(worldBounds);
+        this.bulletPool = bulletPool;
         this.worldBounds = worldBounds;
-        setBottom(worldBounds.getTop() + 0.05f);
+        this.v.set(vDelta);
+
     }
 
     @Override
-        public void destroy() {
-
+    public void update(float delta) {
+        super.update(delta);
+        if (getBottom() < worldBounds.getBottom()) {
+            destroy();
         }
+    }
+
+    public void set(
+            TextureRegion[] regions,
+            Vector2 v0,
+            TextureRegion bulletRegion,
+            float bulletHeight,
+            float bulletVY,
+            int damage,
+            float reloadInterval,
+            Sound sound,
+            float height,
+            int hp
+    ) {
+        this.regions = regions;
+        this.vDelta.set(v0);
+        this.bulletRegion = bulletRegion;
+        this.bulletHeight = bulletHeight;
+        this.bulletSpeed.set(0, bulletVY);
+        this.damage = damage;
+        this.reloadInterval = reloadInterval;
+        this.shootSound = sound;
+        setHeightProportion(height);
+        this.hp = hp;
+        this.v.set(vDelta);
+
+    }
+
+
+
     }
 
 
