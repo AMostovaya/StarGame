@@ -19,7 +19,7 @@ public abstract  class SpritesPool  <T extends Sprite> {
             object = freeObjects.remove(freeObjects.size() - 1);
         }
         activeObjects.add(object);
-        System.out.println("active/free : " + activeObjects.size() + "/" + freeObjects.size());
+        System.out.println(getClass().getName() + " active/free : " + activeObjects.size() + "/" + freeObjects.size());
         return object;
     }
 
@@ -47,7 +47,7 @@ public abstract  class SpritesPool  <T extends Sprite> {
                 freeObjects.add(sprite);
                 i--;
                 sprite.flushDestroy();
-                System.out.println("active/free : " + activeObjects.size() + "/" + freeObjects.size());
+                System.out.println(getClass().getName()+" active/free : " + activeObjects.size() + "/" + freeObjects.size());
             }
         }
     }
