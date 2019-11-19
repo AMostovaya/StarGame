@@ -8,24 +8,31 @@ import ru.geekbrains.stargame.base.Sprite;
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
 
-public class Ships extends Sprite {
+public abstract class Ships extends Sprite {
 
     protected Rect worldBounds;
     protected Vector2 v = new Vector2(); //скорость корабля
+    protected Vector2 vDelta = new Vector2(0.2f, 0f); //скорость
+
+    protected int hp; // количество жизней
 
     protected BulletPool bulletPool;
     protected TextureRegion bulletRegion; //текстура пули
 
-    protected Vector2 bulletSpeed;
+    protected Vector2 bulletSpeed = new Vector2();
 
-    protected float reloadInterval;
-    protected float reloadTimer;
+    protected float reloadInterval =0f;
+    protected float reloadTimer =0f;
 
-    private float damageInterval = 0.1f;
-    private float damageTimer = damageInterval;
+    protected float damageInterval = 0.1f;
+    protected float damageTimer = damageInterval;
     protected float bulletSize;
     protected int bulletDamage;
     protected Sound shootSound; //звук выстрела
+
+    protected float bulletHeight;
+    protected int damage;
+
 
 
     public Ships() {
@@ -38,11 +45,15 @@ public class Ships extends Sprite {
 
     @Override
     public void update(float delta) {
-        super.update(delta);
-        damageTimer += delta;
-        if (damageTimer >= damageInterval){
-            frame = 0;
+
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            reloadTimer = 0f;
+            shoot();
         }
+        pos.mulAdd(v, delta);
+
+
     }
 
     @Override
@@ -51,11 +62,10 @@ public class Ships extends Sprite {
         this.worldBounds = worldBounds;
     }
 
-    public void shoot(){ //Стрельба
-        shootSound.play(0.25f);
-        Bullet bullet = bulletPool.obtain(); //
-
-        bullet.set(this, bulletRegion, pos, bulletSpeed, bulletSize, worldBounds, bulletDamage);
+    protected void shoot(){ //Стрельба
+      shootSound.play(0.25f);
+      Bullet bullet = bulletPool.obtain(); //
+      bullet.set(this, bulletRegion, pos, bulletSpeed, bulletHeight, worldBounds, damage);
     }
 
     public void dispose() {
