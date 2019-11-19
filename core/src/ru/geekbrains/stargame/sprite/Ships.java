@@ -46,13 +46,16 @@ public abstract class Ships extends Sprite {
     @Override
     public void update(float delta) {
 
-        reloadTimer += delta;
+        super.update(delta);
+
+        // shoot - переопреляем в классах кораблей
+
+      /*  reloadTimer += delta;
         if (reloadTimer > reloadInterval) {
             reloadTimer = 0f;
             shoot();
         }
-        pos.mulAdd(v, delta);
-
+        pos.mulAdd(v, delta);*/
 
     }
 
