@@ -13,9 +13,9 @@ import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.EnemyPool;
 import ru.geekbrains.stargame.sprite.Background;
-import ru.geekbrains.stargame.sprite.EnemyShip;
 import ru.geekbrains.stargame.sprite.MainShip;
 import ru.geekbrains.stargame.sprite.Star;
+import ru.geekbrains.stargame.utils.EnemyEmitters;
 
 public class GameScreen extends BaseScreen {
 
@@ -26,8 +26,9 @@ public class GameScreen extends BaseScreen {
     private Star[] stars;
     private Background background;
     private BulletPool bulletPool;
+    private EnemyEmitters enemyEmitter;
     private EnemyPool enemyPool;
-    private EnemyShip enemyShip;
+
 
     private Music music;
 
@@ -42,9 +43,10 @@ public class GameScreen extends BaseScreen {
             stars[i] = new Star(atlas);
         }
         bulletPool = new BulletPool();
+        enemyPool = new EnemyPool( bulletPool, worldBounds);
         ship = new MainShip(atlas, bulletPool);
-        enemyPool = new EnemyPool(bulletPool);
-        enemyShip = new EnemyShip(atlas, enemyPool);
+        enemyEmitter = new EnemyEmitters(enemyPool, atlas, worldBounds);
+
        // фоновое сопровождение
         music = Gdx.audio.newMusic(Gdx.files.internal("sounds/MainTheme.mp3"));
         music.setLooping(true); //повтор
@@ -68,7 +70,9 @@ public class GameScreen extends BaseScreen {
         bg.dispose();
         atlas.dispose();
         music.dispose();
+        ship.dispose();
         enemyPool.dispose();
+        enemyEmitter.dispose();
         super.dispose();
     }
 
@@ -106,6 +110,7 @@ public class GameScreen extends BaseScreen {
     public void freeAllDestroyed() {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
+
     }
 
     private void draw() {
@@ -129,9 +134,10 @@ public class GameScreen extends BaseScreen {
             star.update(delta);
         }
         ship.update(delta);
-        enemyPool.updateActiveSprites(delta);
-        enemyShip.update(delta);
-        bulletPool.updateActiveSprites(delta);
 
+
+        bulletPool.updateActiveSprites(delta);
+        enemyPool.updateActiveSprites(delta);
+        enemyEmitter.generate(delta);
     }
 }
