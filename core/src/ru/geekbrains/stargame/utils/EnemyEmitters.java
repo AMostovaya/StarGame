@@ -18,21 +18,21 @@ public class EnemyEmitters {
     private static final int SMALL_BULLET_DAMAGE = 1;
     private static final float SMALL_RELOAD_INTERVAL = 3f;
     private static final float SMALL_HEIGHT = 0.1f;
-    private static final int SMALL_HP = 1;
+    private static final int SMALL_HP = 10;
 
     private static final float MIDDLE_BULLET_HEIGHT = 0.02f;
     private static final float MIDDLE_BULLET_VY = -0.25f;
     private static final int MIDDLE_BULLET_DAMAGE = 5;
     private static final float MIDDLE_RELOAD_INTERVAL = 4f;
     private static final float MIDDLE_HEIGHT = 0.15f;
-    private static final int MIDDLE_HP = 5;
+    private static final int MIDDLE_HP = 15;
 
     private static final float BIG_BULLET_HEIGHT = 0.03f;
     private static final float BIG_BULLET_VY = -0.2f;
     private static final int BIG_BULLET_DAMAGE = 10;
     private static final float BIG_RELOAD_INTERVAL = 2f;
     private static final float BIG_HEIGHT = 0.2f;
-    private static final int BIG_HP = 10;
+    private static final int BIG_HP = 22;
 
     private float generateInterval = 4f;
     private float generateTimer;
