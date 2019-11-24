@@ -18,7 +18,9 @@ import ru.geekbrains.stargame.pool.ExplosionPool;
 import ru.geekbrains.stargame.sprite.Background;
 import ru.geekbrains.stargame.sprite.Bullet;
 import ru.geekbrains.stargame.sprite.EnemyShip;
+import ru.geekbrains.stargame.sprite.GameOver;
 import ru.geekbrains.stargame.sprite.MainShip;
+import ru.geekbrains.stargame.sprite.NewGameButton;
 import ru.geekbrains.stargame.sprite.Star;
 import ru.geekbrains.stargame.utils.EnemyEmitters;
 
@@ -34,9 +36,11 @@ public class GameScreen extends BaseScreen {
     private EnemyEmitters enemyEmitter;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
-
-
     private Music music;
+    private enum StateGame {PLAY, GAME_OVER}; // PLAY: в процессе игры, GAME_OVER: игра окончена
+    StateGame stateGame;
+    private GameOver messageGameOver; // надпись "Конец игры"
+    private NewGameButton newGameButton;
 
     @Override
     public void show() {
@@ -60,6 +64,11 @@ public class GameScreen extends BaseScreen {
         music.setLooping(true); //повтор
         music.setVolume(0.5f); //громкость
         music.play();
+
+        messageGameOver = new GameOver(atlas);
+        stateGame = StateGame.PLAY;
+        newGameButton = new NewGameButton(atlas, this);
+
     }
 
     @Override
@@ -91,13 +100,23 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        ship.touchUp(touch, pointer);
+       if (stateGame == StateGame.PLAY) {
+           ship.touchUp(touch, pointer);
+       }
+       else  {
+           newGameButton.touchUp(touch, pointer);
+       }
         return false;
     }
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        ship.touchDown(touch, pointer);
+       if (stateGame == StateGame.PLAY) {
+           ship.touchDown(touch, pointer);
+       }
+       else {
+           newGameButton.touchDown(touch, pointer);
+       }
         return false;
     }
 
@@ -116,6 +135,10 @@ public class GameScreen extends BaseScreen {
     }
 
     public void freeAllDestroyed() {
+        // если корабль уничотжен, конец игре
+        if (ship.isDestroyed()) {
+            stateGame = StateGame.GAME_OVER;
+        }
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
         explosionPool.freeAllDestroyedActiveSprites();
@@ -126,66 +149,97 @@ public class GameScreen extends BaseScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         background.draw(batch);
+
         for (Star star: stars) {
             star.draw(batch);
         }
 
-        if (!ship.isDestroyed()) {
-            ship.draw(batch);
+        switch (stateGame) {
 
+            case PLAY:
+                ship.draw(batch);
+                bulletPool.drawActiveSprites(batch);
+                enemyPool.drawActiveSprites(batch);
+                explosionPool.drawActiveSprites(batch);
+                break;
+
+            case GAME_OVER:
+                messageGameOver.draw(batch); // выводим надпись
+                newGameButton.draw(batch); // выводим кнопку "Новая игра"
+                break;
         }
 
-        bulletPool.drawActiveSprites(batch);
-        enemyPool.drawActiveSprites(batch);
-        explosionPool.drawActiveSprites(batch);
-        batch.end();
 
+        batch.end();
     }
 
     private void update(float delta) {
         for (Star star: stars) {
             star.update(delta);
         }
-        ship.update(delta);
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
-        explosionPool.updateActiveSprites(delta);
-        enemyEmitter.generate(delta);
+        // в зависимости от состояния игры
+        switch (stateGame) {
+            case PLAY:
+                ship.update(delta);
+                bulletPool.updateActiveSprites(delta);
+                enemyPool.updateActiveSprites(delta);
+                explosionPool.updateActiveSprites(delta);
+                enemyEmitter.generate(delta);
+                break;
+
+            case GAME_OVER:
+                break;
+        }
     }
 
     private void checkCollisions() {
 
-        List<EnemyShip> enemyShipList = enemyPool.getActiveObjects();
-        List<Bullet> bulletList = bulletPool.getActiveObjects();
-        for (EnemyShip enemyShip:enemyShipList) {
-            float minDist = enemyShip.getHalfWidth() + ship.getHalfWidth();
-            if (ship.pos.dst(enemyShip.pos) < minDist) {
-                ship.damage(enemyShip.getDamage());
-                enemyShip.destroy();
-            }
-            for (Bullet bullet : bulletList) {
-                if (bullet.getOwner() != ship) {
-                    continue;
-                }
-                if (enemyShip.isBulletCollision(bullet)) {
-                    enemyShip.damage(bullet.getDamage());
-                    bullet.destroy();
-                }
-            }
+        if (stateGame == StateGame.PLAY) { // коллизиии проверяем, только пока игра
 
-            for (Bullet bullet : bulletList) {
-                if (bullet.getOwner() == ship) {
-                    continue;
+            List<EnemyShip> enemyShipList = enemyPool.getActiveObjects();
+            List<Bullet> bulletList = bulletPool.getActiveObjects();
+
+            for (EnemyShip enemyShip : enemyShipList) {
+
+                float minDist = enemyShip.getHalfWidth() + ship.getHalfWidth();
+
+                if (ship.pos.dst(enemyShip.pos) < minDist) {
+                    ship.damage(enemyShip.getDamage());
+                    enemyShip.destroy();
                 }
-                if (ship.isBulletCollision(bullet)) {
-                    ship.damage(bullet.getDamage());
-                    bullet.destroy();
+
+                for (Bullet bullet : bulletList) {
+                    if (bullet.getOwner() != ship) {
+                        continue;
+                    }
+                    if (enemyShip.isBulletCollision(bullet)) {
+                        enemyShip.damage(ship.getDamage());
+                        bullet.destroy();
+                    }
                 }
+
+                for (Bullet bullet : bulletList) {
+                    if (bullet.getOwner() == ship) {
+                        continue;
+                    }
+                    if (ship.isBulletCollision(bullet)) {
+                        ship.damage(bullet.getDamage());
+                        bullet.destroy();
+                    }
+                }
+
             }
 
         }
 
+    }
 
+    public void newGame() {
+
+        stateGame = StateGame.PLAY;
+        ship.unDestroy(); // восстановим корабль
+        ship.setHp(10);
+        freeAllDestroyed();
 
     }
 }
