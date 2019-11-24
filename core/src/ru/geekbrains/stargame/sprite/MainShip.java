@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
+import ru.geekbrains.stargame.pool.ExplosionPool;
 
 public class MainShip extends Ships {
 
@@ -21,10 +22,11 @@ public class MainShip extends Ships {
     private int rightPointer = INVALID_POINTER;
 
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/Shoot.wav"));
         bulletRegion = atlas.findRegion("bulletMainShip");
         vDelta.set(0.5f, 0);
@@ -32,7 +34,7 @@ public class MainShip extends Ships {
         damage = 1;
         bulletHeight = 0.01f;
         bulletSpeed.set(0,0.5f);
-        hp = 100;
+        hp = 10;
     }
 
     @Override
@@ -51,13 +53,6 @@ public class MainShip extends Ships {
     public void update(float delta) {
 
         super.update(delta);
-        pos.mulAdd(v, delta);
-        reloadTimer += delta;
-
-        if (reloadTimer >= reloadInterval){ //
-            reloadTimer = 0f;
-            shoot();
-        }
 
         if (getRight() > worldBounds.getRight()) {
             setRight(worldBounds.getRight());
@@ -158,5 +153,12 @@ public class MainShip extends Ships {
         return false;
     }
 
-
+    public boolean isBulletCollision(Rect bullet) {
+        return !(
+                bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getTop() < getBottom()
+                        || bullet.getBottom() > pos.y
+        );
+    }
 }
