@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
+import ru.geekbrains.stargame.pool.ExplosionPool;
 
 public class EnemyShip extends Ships {
 
@@ -13,38 +14,45 @@ public class EnemyShip extends Ships {
     private State state;
     private Vector2 entrySpeed = new Vector2(0, -0.5f); //при появлении скорость должна быть выше
 
-    public EnemyShip(BulletPool bulletPool, Rect worldBounds) {
+    public EnemyShip(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
 
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.worldBounds = worldBounds;
         this.v.set(vDelta);
         this.bulletSpeed = new Vector2();
 
+
+    }
+
+    public boolean isBulletCollision(Rect bullet) {
+        return !(bullet.getRight() < getLeft()
+                        || bullet.getLeft() > getRight()
+                        || bullet.getBottom() > getTop()
+                        || bullet.getTop() < pos.y
+        );
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        this.pos.mulAdd(v, delta);
+
         switch (state){
             case ENTRY:
-                if (getTop() <= worldBounds.getTop()){ //если появляется передняя часть корабля
-                    v.set(vDelta);
-                    state = State.FIGHT;
-                }
-                break;
+            reloadTimer = 0f;
+            if (getTop() <= worldBounds.getTop()) {
+                v.set(vDelta);
+                state = State.FIGHT;
+                reloadTimer = reloadInterval;
+            }
+            break;
             case FIGHT:
-                reloadTimer += delta;
-                if (reloadTimer >= reloadInterval){
-                    reloadTimer = 0f;
-                    // стреляем
-                    shoot();
-                }
-                if (getBottom() < worldBounds.getBottom()){
+                if (getBottom() < worldBounds.getBottom()) {
                     destroy();
                 }
                 break;
-        }
+
+                   }
     }
 
     public void set(
