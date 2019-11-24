@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.stargame.base.Sprite;
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
+import ru.geekbrains.stargame.pool.ExplosionPool;
 
 public abstract class Ships extends Sprite {
 
@@ -33,9 +34,12 @@ public abstract class Ships extends Sprite {
     protected float bulletHeight;
     protected int damage;
 
-
+    protected ExplosionPool explosionPool;
+    protected float animateInterval = 0.05f;
+    protected float animateTimer = animateInterval;
 
     public Ships() {
+
         super();
     }
 
@@ -46,16 +50,16 @@ public abstract class Ships extends Sprite {
     @Override
     public void update(float delta) {
 
-        super.update(delta);
-
-        // shoot - переопреляем в классах кораблей
-
-      /*  reloadTimer += delta;
+        reloadTimer += delta;
         if (reloadTimer > reloadInterval) {
             reloadTimer = 0f;
             shoot();
         }
-        pos.mulAdd(v, delta);*/
+        animateTimer += delta;
+        if (animateTimer > animateInterval) {
+            frame = 0;
+        }
+        pos.mulAdd(v, delta);
 
     }
 
@@ -65,6 +69,12 @@ public abstract class Ships extends Sprite {
         this.worldBounds = worldBounds;
     }
 
+    @Override
+    public void destroy() {
+       boom();
+       super.destroy();
+    }
+
     protected void shoot(){ //Стрельба
       shootSound.play(0.25f);
       Bullet bullet = bulletPool.obtain(); //
@@ -72,6 +82,26 @@ public abstract class Ships extends Sprite {
     }
 
     public void dispose() {
+
         shootSound.dispose(); //освобождаем ресурсы
+    }
+
+    protected void boom(){
+       Explosion explosion = explosionPool.obtain();
+       explosion.set(pos, getHeight());
+    }
+
+    public void damage(int damage){
+        hp-=damage;
+        if (hp==0) {
+            destroy();
+        }
+        animateTimer = 0f;
+        frame = 1;
+
+    }
+
+    public int getDamage() {
+        return damage;
     }
 }
