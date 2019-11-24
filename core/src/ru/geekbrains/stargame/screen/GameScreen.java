@@ -155,7 +155,6 @@ public class GameScreen extends BaseScreen {
         }
 
         switch (stateGame) {
-
             case PLAY:
                 ship.draw(batch);
                 bulletPool.drawActiveSprites(batch);
