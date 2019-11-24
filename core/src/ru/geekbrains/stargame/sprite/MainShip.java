@@ -22,6 +22,7 @@ public class MainShip extends Ships {
     private int rightPointer = INVALID_POINTER;
 
 
+
     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
@@ -64,7 +65,9 @@ public class MainShip extends Ships {
         }
     }
 
-
+    public int getDamage() {
+        return damage;
+    }
 
     // движение по нажатию клавиши
     public void keyDown(int keycode) {
@@ -160,5 +163,9 @@ public class MainShip extends Ships {
                         || bullet.getTop() < getBottom()
                         || bullet.getBottom() > pos.y
         );
+    }
+
+    public int getHp() {
+        return hp;
     }
 }
