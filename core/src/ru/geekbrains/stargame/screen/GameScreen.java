@@ -8,11 +8,16 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.List;
+
 import ru.geekbrains.stargame.base.BaseScreen;
 import ru.geekbrains.stargame.math.Rect;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.EnemyPool;
+import ru.geekbrains.stargame.pool.ExplosionPool;
 import ru.geekbrains.stargame.sprite.Background;
+import ru.geekbrains.stargame.sprite.Bullet;
+import ru.geekbrains.stargame.sprite.EnemyShip;
 import ru.geekbrains.stargame.sprite.MainShip;
 import ru.geekbrains.stargame.sprite.Star;
 import ru.geekbrains.stargame.utils.EnemyEmitters;
@@ -28,6 +33,7 @@ public class GameScreen extends BaseScreen {
     private BulletPool bulletPool;
     private EnemyEmitters enemyEmitter;
     private EnemyPool enemyPool;
+    private ExplosionPool explosionPool;
 
 
     private Music music;
@@ -43,8 +49,10 @@ public class GameScreen extends BaseScreen {
             stars[i] = new Star(atlas);
         }
         bulletPool = new BulletPool();
-        enemyPool = new EnemyPool( bulletPool, worldBounds);
-        ship = new MainShip(atlas, bulletPool);
+        explosionPool = new ExplosionPool(atlas);
+        enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
+
+        ship = new MainShip(atlas, bulletPool, explosionPool);
         enemyEmitter = new EnemyEmitters(enemyPool, atlas, worldBounds);
 
        // фоновое сопровождение
@@ -52,7 +60,6 @@ public class GameScreen extends BaseScreen {
         music.setLooping(true); //повтор
         music.setVolume(0.5f); //громкость
         music.play();
-
     }
 
     @Override
@@ -62,7 +69,6 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         ship.resize(worldBounds);
-
     }
 
     @Override
@@ -72,6 +78,7 @@ public class GameScreen extends BaseScreen {
         music.dispose();
         ship.dispose();
         enemyPool.dispose();
+        explosionPool.dispose();
         enemyEmitter.dispose();
         super.dispose();
     }
@@ -103,6 +110,7 @@ public class GameScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         update(delta);
+        checkCollisions();
         freeAllDestroyed();
         draw();
     }
@@ -110,7 +118,7 @@ public class GameScreen extends BaseScreen {
     public void freeAllDestroyed() {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
-
+        explosionPool.freeAllDestroyedActiveSprites();
     }
 
     private void draw() {
@@ -121,10 +129,15 @@ public class GameScreen extends BaseScreen {
         for (Star star: stars) {
             star.draw(batch);
         }
-        ship.draw(batch);
+
+        if (!ship.isDestroyed()) {
+            ship.draw(batch);
+
+        }
 
         bulletPool.drawActiveSprites(batch);
         enemyPool.drawActiveSprites(batch);
+        explosionPool.drawActiveSprites(batch);
         batch.end();
 
     }
@@ -134,10 +147,45 @@ public class GameScreen extends BaseScreen {
             star.update(delta);
         }
         ship.update(delta);
-
-
         bulletPool.updateActiveSprites(delta);
         enemyPool.updateActiveSprites(delta);
+        explosionPool.updateActiveSprites(delta);
         enemyEmitter.generate(delta);
+    }
+
+    private void checkCollisions() {
+
+        List<EnemyShip> enemyShipList = enemyPool.getActiveObjects();
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+        for (EnemyShip enemyShip:enemyShipList) {
+            float minDist = enemyShip.getHalfWidth() + ship.getHalfWidth();
+            if (ship.pos.dst(enemyShip.pos) < minDist) {
+                ship.damage(enemyShip.getDamage());
+                enemyShip.destroy();
+            }
+            for (Bullet bullet : bulletList) {
+                if (bullet.getOwner() != ship) {
+                    continue;
+                }
+                if (enemyShip.isBulletCollision(bullet)) {
+                    enemyShip.damage(bullet.getDamage());
+                    bullet.destroy();
+                }
+            }
+
+            for (Bullet bullet : bulletList) {
+                if (bullet.getOwner() == ship) {
+                    continue;
+                }
+                if (ship.isBulletCollision(bullet)) {
+                    ship.damage(bullet.getDamage());
+                    bullet.destroy();
+                }
+            }
+
+        }
+
+
+
     }
 }
