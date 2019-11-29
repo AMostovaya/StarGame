@@ -13,7 +13,7 @@ public class MainShip extends Ships {
 
     private static final float BOTTOM_MARGIN = 0.05f;
     private static final int INVALID_POINTER = -1;
-
+    private static final int HP = 10;
 
     private boolean isLeft; // нажата левая стрелка
     private boolean isRight; // нажата правая стрелка
@@ -21,9 +21,7 @@ public class MainShip extends Ships {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-
-
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
+     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
@@ -35,7 +33,18 @@ public class MainShip extends Ships {
         damage = 1;
         bulletHeight = 0.01f;
         bulletSpeed.set(0,0.5f);
-        hp = 10;
+        hp = HP;
+
+    }
+
+    public void startNewGame(Rect worldBounds){
+        isLeft = false;
+        isRight = false;
+        leftPointer = INVALID_POINTER;
+        rightPointer = INVALID_POINTER;
+        stop();
+        hp = HP;
+        pos.x = worldBounds.pos.x;
     }
 
     @Override
@@ -165,7 +174,5 @@ public class MainShip extends Ships {
         );
     }
 
-    public int getHp() {
-        return hp;
-    }
+
 }
