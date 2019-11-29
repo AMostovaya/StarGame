@@ -18,21 +18,21 @@ public class EnemyEmitters {
     private static final int SMALL_BULLET_DAMAGE = 1;
     private static final float SMALL_RELOAD_INTERVAL = 3f;
     private static final float SMALL_HEIGHT = 0.1f;
-    private static final int SMALL_HP = 10;
+    private static final int SMALL_HP = 1;
 
     private static final float MIDDLE_BULLET_HEIGHT = 0.02f;
     private static final float MIDDLE_BULLET_VY = -0.25f;
     private static final int MIDDLE_BULLET_DAMAGE = 5;
     private static final float MIDDLE_RELOAD_INTERVAL = 4f;
     private static final float MIDDLE_HEIGHT = 0.15f;
-    private static final int MIDDLE_HP = 15;
+    private static final int MIDDLE_HP = 5;
 
     private static final float BIG_BULLET_HEIGHT = 0.03f;
     private static final float BIG_BULLET_VY = -0.2f;
     private static final int BIG_BULLET_DAMAGE = 10;
     private static final float BIG_RELOAD_INTERVAL = 2f;
     private static final float BIG_HEIGHT = 0.2f;
-    private static final int BIG_HP = 22;
+    private static final int BIG_HP = 10;
 
     private float generateInterval = 4f;
     private float generateTimer;
@@ -51,6 +51,8 @@ public class EnemyEmitters {
 
     private Sound sound;
 
+    private int level = 1;
+
     public EnemyEmitters(EnemyPool enemyPool, TextureAtlas atlas, Rect worldBounds) {
         this.enemyPool = enemyPool;
         this.worldBounds = worldBounds;
@@ -62,7 +64,8 @@ public class EnemyEmitters {
 
     }
 
-    public void generate(float delta) {
+    public void generate(float delta, int frags) {
+        level = frags/10+1;
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
@@ -75,7 +78,7 @@ public class EnemyEmitters {
                         bulletRegion,
                         SMALL_BULLET_HEIGHT,
                         SMALL_BULLET_VY,
-                        SMALL_BULLET_DAMAGE,
+                        SMALL_BULLET_DAMAGE * level,
                         SMALL_RELOAD_INTERVAL,
                         sound,
                         SMALL_HEIGHT,
@@ -88,7 +91,7 @@ public class EnemyEmitters {
                         bulletRegion,
                         MIDDLE_BULLET_HEIGHT,
                         MIDDLE_BULLET_VY,
-                        MIDDLE_BULLET_DAMAGE,
+                        MIDDLE_BULLET_DAMAGE * level,
                         MIDDLE_RELOAD_INTERVAL,
                         sound,
                         MIDDLE_HEIGHT,
@@ -101,7 +104,7 @@ public class EnemyEmitters {
                         bulletRegion,
                         BIG_BULLET_HEIGHT,
                         BIG_BULLET_VY,
-                        BIG_BULLET_DAMAGE,
+                        BIG_BULLET_DAMAGE * level,
                         BIG_RELOAD_INTERVAL,
                         sound,
                         BIG_HEIGHT,
@@ -114,7 +117,16 @@ public class EnemyEmitters {
     }
 
         public void dispose() {
+
             sound.dispose();
         }
+
+    public int getLevel() {
+        return level;
     }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+}
 
