@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.BonusPool;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.ExplosionPool;
 
@@ -14,15 +15,14 @@ public class EnemyShip extends Ships {
     private State state;
     private Vector2 entrySpeed = new Vector2(0, -0.5f); //при появлении скорость должна быть выше
 
-    public EnemyShip(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
+    public EnemyShip(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds, BonusPool bonusPool) {
 
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
         this.worldBounds = worldBounds;
         this.v.set(vDelta);
         this.bulletSpeed = new Vector2();
-
-
+        this.bonusPool = bonusPool;
     }
 
     public boolean isBulletCollision(Rect bullet) {
@@ -51,8 +51,7 @@ public class EnemyShip extends Ships {
                     destroy();
                 }
                 break;
-
-                   }
+        }
     }
 
     public void set(
