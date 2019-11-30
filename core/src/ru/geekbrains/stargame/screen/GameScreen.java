@@ -14,6 +14,7 @@ import java.util.List;
 import ru.geekbrains.stargame.base.BaseScreen;
 import ru.geekbrains.stargame.base.Font;
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.BonusPool;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.EnemyPool;
 import ru.geekbrains.stargame.pool.ExplosionPool;
@@ -23,6 +24,7 @@ import ru.geekbrains.stargame.sprite.EnemyShip;
 import ru.geekbrains.stargame.sprite.GameOver;
 import ru.geekbrains.stargame.sprite.MainShip;
 import ru.geekbrains.stargame.sprite.NewGameButton;
+import ru.geekbrains.stargame.sprite.Bonus;
 import ru.geekbrains.stargame.sprite.Star;
 import ru.geekbrains.stargame.utils.EnemyEmitters;
 
@@ -37,25 +39,25 @@ public class GameScreen extends BaseScreen {
     private TextureAtlas atlas;
     private MainShip ship;
     private Star[] stars;
+
     private Background background;
     private BulletPool bulletPool;
     private EnemyEmitters enemyEmitter;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
+    private BonusPool bonusPool;
     private Music music;
-
     private enum StateGame {PLAY, PAUSE, GAME_OVER}    ; // PLAY: в процессе игры, GAME_OVER: игра окончена
-    StateGame stateGame;
     private StateGame prevState;
     private int prevLevel = 1;
     private GameOver messageGameOver; // надпись "Конец игры"
     private NewGameButton newGameButton;
-
     private Font font;
     private int frags;
     private StringBuilder sbFrags;
     private StringBuilder sbHp;
     private StringBuilder sbLevel;
+    StateGame stateGame;
 
     @Override
     public void show() {
@@ -64,15 +66,21 @@ public class GameScreen extends BaseScreen {
         bg = new Texture("textures/bg.png");
         background = new Background(new TextureRegion(bg));
         atlas = new TextureAtlas("textures/mainAtlas.tpack");
+
         stars = new Star[STAR_COUTNT];
+
         for (int i = 0; i < STAR_COUTNT; i++) {
             stars[i] = new Star(atlas);
         }
+
+
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas);
-        enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
+        bonusPool = new BonusPool(atlas, worldBounds);
 
-        ship = new MainShip(atlas, bulletPool, explosionPool);
+        enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds, bonusPool);
+
+        ship = new MainShip(atlas, bulletPool, explosionPool, bonusPool);
         enemyEmitter = new EnemyEmitters(enemyPool, atlas, worldBounds);
 
         // фоновое сопровождение
@@ -110,6 +118,7 @@ public class GameScreen extends BaseScreen {
             star.resize(worldBounds);
         }
         ship.resize(worldBounds);
+
     }
 
     @Override
@@ -120,6 +129,7 @@ public class GameScreen extends BaseScreen {
         ship.dispose();
         enemyPool.dispose();
         explosionPool.dispose();
+        bonusPool.dispose();
         enemyEmitter.dispose();
         super.dispose();
         bulletPool.dispose();
@@ -173,7 +183,6 @@ public class GameScreen extends BaseScreen {
 
     @Override
     public void render(float delta) {
-
         update(delta);
         checkCollisions();
         freeAllDestroyed();
@@ -188,6 +197,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllDestroyedActiveSprites();
         enemyPool.freeAllDestroyedActiveSprites();
         explosionPool.freeAllDestroyedActiveSprites();
+        bonusPool.freeAllDestroyedActiveSprites();
     }
 
     private void draw() {
@@ -200,12 +210,14 @@ public class GameScreen extends BaseScreen {
             star.draw(batch);
         }
 
+
         switch (stateGame) {
             case PLAY:
                 ship.draw(batch);
                 bulletPool.drawActiveSprites(batch);
                 enemyPool.drawActiveSprites(batch);
                 explosionPool.drawActiveSprites(batch);
+                bonusPool.drawActiveSprites(batch);
                 break;
 
             case GAME_OVER:
@@ -222,6 +234,8 @@ public class GameScreen extends BaseScreen {
         for (Star star : stars) {
             star.update(delta);
         }
+
+
         if (prevLevel< enemyEmitter.getLevel()){
             prevLevel = enemyEmitter.getLevel();
             ship.setHp(ship.getHp()+10);
@@ -233,7 +247,9 @@ public class GameScreen extends BaseScreen {
                 bulletPool.updateActiveSprites(delta);
                 enemyPool.updateActiveSprites(delta);
                 explosionPool.updateActiveSprites(delta);
+                bonusPool.updateActiveSprites(delta);
                 enemyEmitter.generate(delta, frags);
+
                 break;
 
             case GAME_OVER:
@@ -249,12 +265,14 @@ public class GameScreen extends BaseScreen {
 
             List<EnemyShip> enemyList = enemyPool.getActiveObjects();
             List<Bullet> bulletList = bulletPool.getActiveObjects();
+            List<Bonus> bonusList = bonusPool.getActiveObjects();
             for (EnemyShip enemy : enemyList) {
                 float minDist = enemy.getHalfWidth() + ship.getHalfWidth();
                 if (ship.pos.dst(enemy.pos) < minDist) {
                     ship.damage(enemy.getDamage());
                     enemy.destroy();
                     frags++;
+
                     if (ship.isDestroyed()) {
                         stateGame = StateGame.GAME_OVER;
                     }
@@ -282,6 +300,16 @@ public class GameScreen extends BaseScreen {
                     if (ship.isDestroyed()) {
                         stateGame = StateGame.GAME_OVER;
                     }
+                }
+            }
+            for (Bonus bonus: bonusList) {
+                // если поймали бонус, получаем количество жизней от 1 до 3-х
+                if (ship.isBonusCollision(bonus)) {
+                    int countR = bonus.getCountRecover();
+                    ship.recover(countR);
+                    bonus.Play();
+                    // удаляем
+                    bonus.destroy();
                 }
             }
         }
