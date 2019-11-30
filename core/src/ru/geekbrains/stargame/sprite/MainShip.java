@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.BonusPool;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.ExplosionPool;
 
@@ -21,11 +22,12 @@ public class MainShip extends Ships {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool) {
+     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, BonusPool bonusPool) {
         super(atlas.findRegion("main_ship"),1,2,2);
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
+        this.bonusPool = bonusPool;
         shootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/Shoot.wav"));
         bulletRegion = atlas.findRegion("bulletMainShip");
         vDelta.set(0.5f, 0);
@@ -172,6 +174,21 @@ public class MainShip extends Ships {
                         || bullet.getTop() < getBottom()
                         || bullet.getBottom() > pos.y
         );
+    }
+
+    public boolean isBonusCollision(Rect bonus) {
+        return !(
+                bonus.getRight() < getLeft()
+                        || bonus.getLeft() > getRight()
+                        || bonus.getTop() < getBottom()
+                        || bonus.getBottom() > pos.y
+        );
+    }
+
+    public void recover(int countRecovery){
+        hp+=countRecovery;
+
+
     }
 
 
