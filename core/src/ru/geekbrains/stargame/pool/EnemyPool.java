@@ -13,16 +13,18 @@ public class EnemyPool extends SpritesPool<EnemyShip> {
     private BulletPool bulletPool;
     private Rect worldBounds;
     private ExplosionPool explosionPool;
+    private BonusPool bonusPool;
 
-    public EnemyPool(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds) {
+    public EnemyPool(BulletPool bulletPool, ExplosionPool explosionPool, Rect worldBounds, BonusPool bonusPool) {
         this.worldBounds = worldBounds;
         this.bulletPool = bulletPool;
         this.explosionPool = explosionPool;
+        this.bonusPool = bonusPool;
     }
 
     @Override
     protected EnemyShip newObject() {
-       return new EnemyShip(bulletPool, explosionPool, worldBounds);
+       return new EnemyShip(bulletPool, explosionPool, worldBounds, bonusPool);
     }
 
 
