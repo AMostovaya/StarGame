@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.stargame.base.Sprite;
 import ru.geekbrains.stargame.math.Rect;
+import ru.geekbrains.stargame.pool.BonusPool;
 import ru.geekbrains.stargame.pool.BulletPool;
 import ru.geekbrains.stargame.pool.ExplosionPool;
 
@@ -22,6 +23,7 @@ public abstract class Ships extends Sprite {
 
     protected Vector2 bulletSpeed = new Vector2();
 
+
     protected float reloadInterval =0f;
     protected float reloadTimer =0f;
 
@@ -35,6 +37,8 @@ public abstract class Ships extends Sprite {
     protected int damage;
 
     protected ExplosionPool explosionPool;
+    protected BonusPool bonusPool;
+
     protected float animateInterval = 0.05f;
     protected float animateTimer = animateInterval;
 
@@ -82,13 +86,14 @@ public abstract class Ships extends Sprite {
     }
 
     public void dispose() {
-
         shootSound.dispose(); //освобождаем ресурсы
     }
 
     protected void boom(){
        Explosion explosion = explosionPool.obtain();
+       Bonus bonus = bonusPool.obtain();
        explosion.set(pos, getHeight());
+       bonus.set(pos, getHeight());
     }
 
     public void damage(int damage){
